@@ -1,0 +1,64 @@
+{
+  "intake": {
+    "companyName": "Acme Corp",
+    "vertical": "Enterprise SaaS",
+    "stage": "Series B",
+    "description": "Acme Corp provides AI-powered workflow automation for mid-market enterprises, reducing manual operational overhead by 60%. Their platform integrates with 200+ existing business tools and serves as the central nervous system for operations teams.",
+    "metrics": {
+      "arr": "$12M",
+      "growth": "140% YoY",
+      "nrr": "125%",
+      "customers": 340,
+      "teamSize": 85
+    }
+  },
+  "scores": {
+    "dimensions": [
+      {
+        "name": "Market Opportunity",
+        "score": 8.2,
+        "reasoning": "The workflow automation market is projected to reach $78B by 2028, with mid-market enterprises representing the fastest-growing segment as they digitize operations.",
+        "confidence": 0.85
+      },
+      {
+        "name": "Product Differentiation",
+        "score": 7.5,
+        "reasoning": "Strong integration ecosystem (200+ connectors) provides switching cost advantage, though core AI capabilities face increasing commoditization pressure.",
+        "confidence": 0.80
+      },
+      {
+        "name": "Team & Execution",
+        "score": 8.8,
+        "reasoning": "Experienced founding team with prior exits in enterprise software. Engineering velocity is high with consistent monthly releases and 99.95% uptime.",
+        "confidence": 0.90
+      },
+      {
+        "name": "Financial Health",
+        "score": 7.0,
+        "reasoning": "140% growth with 18-month runway is solid, though burn multiple of 2.1x suggests room for efficiency improvement before next raise.",
+        "confidence": 0.75
+      },
+      {
+        "name": "Scalability",
+        "score": 8.5,
+        "reasoning": "Multi-tenant architecture handles 10x current load. Self-serve onboarding reduces CAC and enables expansion into smaller segments without headcount scaling.",
+        "confidence": 0.88
+      },
+      {
+        "name": "Competitive Moat",
+        "score": 6.8,
+        "reasoning": "Integration depth and customer workflow data create moderate lock-in, but no strong IP protection. Large incumbents could replicate core features within 12-18 months.",
+        "confidence": 0.72
+      },
+      {
+        "name": "Risk Profile",
+        "score": 7.3,
+        "reasoning": "Primary risks are enterprise sales cycle elongation and AI model dependency. Mitigation through multi-model strategy and PLG motion reduces concentration risk.",
+        "confidence": 0.78
+      }
+    ],
+    "overall": 7.73,
+    "timestamp": "2026-06-14T10:30:00Z"
+  },
+  "narrative": "Acme Corp presents a compelling Series B opportunity in the rapidly expanding workflow automation space. The company demonstrates exceptional execution capability with 140% YoY growth and strong unit economics, anchored by an experienced team with prior enterprise software exits.\n\nThe seven-dimension analysis reveals particular strength in Team & Execution (8.8) and Scalability (8.5), indicating a well-built foundation for growth. The Market Opportunity score of 8.2 reflects favorable macro trends in enterprise digitization.\n\nAreas warranting attention include Competitive Moat (6.8), where the lack of defensible IP creates medium-term risk from well-resourced incumbents. The Financial Health score (7.0) suggests the company should focus on burn efficiency ahead of a potential Series C.\n\nOverall, Acme Corp scores 7.73/10 — placing it in the strong recommendation tier for growth-stage investment."
+}
