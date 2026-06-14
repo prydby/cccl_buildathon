@@ -12,6 +12,7 @@ import { selectFramework } from './frameworks.js'
 import { scoreDocument } from './scorer.js'
 import { calculateTRL } from './trlCalculator.js'
 import { analyzeGaps } from './gapAnalyzer.js'
+import { generateNarrative } from './narrativeGenerator.js'
 
 /**
  * @typedef {Object} Intake
@@ -48,8 +49,9 @@ export function runAssessment(intake) {
   const scorecard = scoreDocument(intake.document, framework)
   const trl = calculateTRL(scorecard)
   const gaps = analyzeGaps(scorecard)
+  const narrative = generateNarrative({ intake, scorecard, trl, gaps })
 
-  return { intake, framework, scorecard, trl, gaps }
+  return { intake, framework, scorecard, trl, gaps, narrative }
 }
 
 export default runAssessment

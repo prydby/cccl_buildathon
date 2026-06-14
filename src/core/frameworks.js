@@ -130,7 +130,7 @@ const AXIS_LIBRARY = {
     description: 'Coverage, regression, edge cases, chaos',
     signals: {
       strong: ['e2e test', 'load test', 'chaos test', 'regression test', '80% coverage', '90% coverage', 'integration test', 'contract test', 'adversarial test'],
-      positive: ['unit test', 'test coverage', 'automated test', 'ci test', 'testing', 'qa'],
+      positive: ['unit test', 'test coverage', 'automated test', 'ci test', 'testing', 'qa', 'coverage', 'tests in ci'],
       negative: ['no test', 'no coverage', 'manual test only', 'untested', 'no qa', 'low coverage'],
     },
     benchmark: 'Pre-production: 80%+ coverage, integration + E2E tests, chaos testing, documented edge cases.',

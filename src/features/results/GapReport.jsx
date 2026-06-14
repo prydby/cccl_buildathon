@@ -2,65 +2,24 @@ import React, { useState } from 'react'
 import Card from '../../shared/ui/Card.jsx'
 import Button from '../../shared/ui/Button.jsx'
 
-const REMEDIATION = {
-  'Agent Architecture': [
-    'Define explicit context management strategy (sliding window, RAG, hierarchical)',
-    'Implement tool error isolation — one failing tool should not crash the agent',
-    'Add multi-agent coordination if query complexity requires it',
-  ],
-  'Model Reliability': [
-    'Implement schema validation on all LLM outputs (JSON schema or Zod)',
-    'Add confidence thresholds — low-confidence responses trigger fallback',
-    'Set up LLM-as-judge for output quality scoring on critical paths',
-  ],
-  'Delivery & Ops': [
-    'Separate prompt/config deployment from code deployment pipeline',
-    'Implement instant rollback for prompt versions (< 60 second recovery)',
-    'Set up staging environment with production-mirror traffic',
-  ],
-  'Observability & Evals': [
-    'Deploy LLM tracing (Langfuse, Arize, or OpenTelemetry-based)',
-    'Build automated eval suite with 50+ test cases covering edge cases',
-    'Set up real-time cost dashboard with budget alerting',
-  ],
-  'Safety & Guardrails': [
-    'Implement multi-layer input filtering (format + content + injection)',
-    'Schedule regular adversarial/red-team testing (monthly minimum)',
-    'Add human-in-the-loop approval gates for high-risk operations',
-  ],
-  'Scalability & Cost': [
-    'Implement semantic caching to reduce redundant LLM calls',
-    'Load test to 10x current capacity and identify bottlenecks',
-    'Model cost at scale target — ensure economics are sustainable',
-  ],
-  'Testing Confidence': [
-    'Build eval suite: 50+ cases covering happy path, edge cases, adversarial inputs',
-    'Add regression tests that run on every prompt/config change',
-    'Document known edge cases and failure modes',
-  ],
-  'User Validation': [
-    'Implement systematic feedback capture (in-app, not ad-hoc)',
-    'Track task completion rate and identify where users drop off',
-    'Set up weekly metrics review: DAU, completion, satisfaction trends',
-  ],
-}
-
-export default function GapReport({ scorecard, trlResult }) {
+/**
+ * GapReport — renders the core engine's gap analysis.
+ * Consumes `gaps` (from analyzeGaps) so remediation is sourced from the
+ * framework definition, never hardcoded against stale axis names.
+ */
+export default function GapReport({ trlResult, gaps }) {
   const [showRoadmap, setShowRoadmap] = useState(false)
 
-  if (!scorecard || !trlResult) return null
+  if (!gaps) return null
+  const { gaps: gapList, blocking, warnings, roadmap } = gaps
 
-  const allGaps = scorecard.dimensions
-    .filter((d) => d.score !== null && d.score < 7)
-    .sort((a, b) => a.score - b.score)
-
-  if (allGaps.length === 0) {
+  if (gapList.length === 0) {
     return (
       <Card glowing className="animate-fade-in-up">
         <div className="text-center py-4">
           <span className="text-3xl">🎉</span>
-          <p className="text-sm font-medium text-green-400 mt-2">No critical gaps detected</p>
-          <p className="text-xs text-[#64748b] mt-1">System meets production-readiness thresholds across all axes.</p>
+          <p className="text-sm font-medium text-green-400 mt-2">No gaps detected</p>
+          <p className="text-xs text-[#64748b] mt-1">Meets production-readiness thresholds across all axes.</p>
         </div>
       </Card>
     )
@@ -68,12 +27,11 @@ export default function GapReport({ scorecard, trlResult }) {
 
   return (
     <div className="space-y-5 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-[#f1f5f9]">Gap Report</h3>
           <p className="text-xs text-[#4b5563]">
-            {trlResult.blockingGaps.length} blocking · {trlResult.warnings.length} warnings · {allGaps.length} total
+            {blocking.length} blocking · {warnings.length} warning{warnings.length !== 1 ? 's' : ''} · {gapList.length} total
           </p>
         </div>
         <Button variant="primary" size="sm" onClick={() => setShowRoadmap(!showRoadmap)}>
@@ -81,12 +39,10 @@ export default function GapReport({ scorecard, trlResult }) {
         </Button>
       </div>
 
-      {/* Gap Cards */}
+      {/* Gap cards */}
       <div className="space-y-3">
-        {allGaps.map((gap, i) => {
-          const isBlocking = gap.score < 5
-          const actions = REMEDIATION[gap.name] || ['Investigate and address']
-
+        {gapList.map((gap, i) => {
+          const isBlocking = gap.severity === 'blocking'
           return (
             <Card
               key={gap.name}
@@ -102,16 +58,26 @@ export default function GapReport({ scorecard, trlResult }) {
                   <span className={`text-sm font-bold ${isBlocking ? 'text-red-400' : 'text-amber-400'}`}>
                     {gap.score.toFixed(1)}
                   </span>
-                  <span className={`px-1.5 py-0.5 text-[10px] rounded ${
+                  <span className={`px-1.5 py-0.5 text-[10px] rounded font-medium ${
                     isBlocking ? 'bg-red-500/10 text-red-400' : 'bg-amber-500/10 text-amber-400'
                   }`}>
                     {isBlocking ? 'BLOCKING' : 'WARNING'}
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-[#94a3b8] mb-3">{gap.reasoning}</p>
+              <p className="text-xs text-[#94a3b8] mb-3 leading-relaxed">{gap.reasoning}</p>
+
+              {/* Benchmark — what "good" looks like */}
+              {gap.benchmark && (
+                <div className="mb-3 px-2.5 py-2 rounded-lg bg-cyan-500/5 border border-cyan-500/10">
+                  <p className="text-[10px] text-cyan-400/80"><span className="font-medium">Benchmark:</span> {gap.benchmark}</p>
+                </div>
+              )}
+
+              {/* Remediation from core */}
               <div className="space-y-1.5">
-                {actions.map((action, j) => (
+                <p className="text-[10px] text-[#4b5563] uppercase tracking-wider">Recommended actions</p>
+                {gap.remediation.map((action, j) => (
                   <div key={j} className="flex items-start gap-2 text-xs text-[#cbd5e1]">
                     <span className="text-cyan-400 mt-0.5 flex-shrink-0">→</span>
                     {action}
@@ -123,35 +89,20 @@ export default function GapReport({ scorecard, trlResult }) {
         })}
       </div>
 
-      {/* Remediation Roadmap */}
+      {/* Roadmap */}
       {showRoadmap && (
         <Card glowing className="animate-fade-in-up">
-          <h4 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-4">
-            Remediation Roadmap
-          </h4>
+          <h4 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-4">Remediation Roadmap</h4>
           <div className="space-y-4">
-            <RoadmapPhase
-              phase="1"
-              name="Critical Gaps (Week 1-3)"
-              items={trlResult.blockingGaps.map((g) => `Fix: ${g}`)}
-              color="red"
-            />
-            <RoadmapPhase
-              phase="2"
-              name="Warnings (Week 3-5)"
-              items={trlResult.warnings.map((w) => `Improve: ${w}`)}
-              color="amber"
-            />
-            <RoadmapPhase
-              phase="3"
-              name="Validation (Week 5-6)"
-              items={['Re-assess with PilotIQ', 'Load test at scale target', 'Stakeholder sign-off']}
-              color="green"
-            />
+            {roadmap.map((phase) => (
+              <RoadmapPhase key={phase.phase} phase={phase} />
+            ))}
           </div>
           <div className="mt-4 pt-4 border-t border-[#1e293b] flex items-center justify-between">
-            <span className="text-xs text-[#4b5563]">Target: TRL {Math.min(9, trlResult.level + 2)} → {trlResult.verdict === 'NO_GO' ? 'CONDITIONAL' : 'GO'}</span>
-            <span className="text-xs text-cyan-400">{trlResult.estimatedWeeks} weeks estimated</span>
+            <span className="text-xs text-[#4b5563]">
+              Target: TRL {Math.min(9, (trlResult?.level || 5) + 2)} → {trlResult?.verdict === 'NO_GO' ? 'CONDITIONAL' : 'GO'}
+            </span>
+            <span className="text-xs text-cyan-400">{trlResult?.estimatedWeeks} weeks estimated</span>
           </div>
         </Card>
       )}
@@ -159,17 +110,19 @@ export default function GapReport({ scorecard, trlResult }) {
   )
 }
 
-function RoadmapPhase({ phase, name, items, color }) {
+function RoadmapPhase({ phase }) {
   const colors = {
-    red: 'border-red-500/30 text-red-400',
-    amber: 'border-amber-500/30 text-amber-400',
-    green: 'border-green-500/30 text-green-400',
+    blocking: 'border-red-500/30 text-red-400',
+    warning: 'border-amber-500/30 text-amber-400',
+    validation: 'border-green-500/30 text-green-400',
   }
   return (
-    <div className={`pl-4 border-l-2 ${colors[color]}`}>
-      <p className="text-xs font-medium text-[#f1f5f9] mb-1.5">Phase {phase}: {name}</p>
+    <div className={`pl-4 border-l-2 ${colors[phase.severity] || colors.validation}`}>
+      <p className="text-xs font-medium text-[#f1f5f9] mb-1.5">
+        Phase {phase.phase}: {phase.name} <span className="text-[#4b5563] font-normal">({phase.window})</span>
+      </p>
       <ul className="space-y-1">
-        {items.map((item, i) => (
+        {phase.items.map((item, i) => (
           <li key={i} className="text-xs text-[#94a3b8]">• {item}</li>
         ))}
       </ul>

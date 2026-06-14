@@ -85,11 +85,11 @@ export default function App() {
   const [page, setPage] = useState('assess')
   const [view, setView] = useState('input')
   const { assess, isLoading, assessment, reset } = useAssessment()
-  const [extras, setExtras] = useState({ narrative: null, competitorAnalysis: null })
+  const [extras, setExtras] = useState({ competitorAnalysis: null })
 
   async function handleSubmit(intake) {
     setView('loading')
-    setExtras({ narrative: null, competitorAnalysis: null })
+    setExtras({ competitorAnalysis: null })
     try {
       await assess(intake)
       setView('results')
@@ -103,7 +103,7 @@ export default function App() {
     setPage('assess')
     setView('loading')
     try {
-      // Run the REAL engine on Cabby's document; enrich with fixture extras.
+      // Run the REAL engine on Cabby's document; enrich with fixture's market context.
       await assess({
         name: cabbyFixture.intake.name,
         productType: cabbyFixture.intake.productType,
@@ -111,10 +111,7 @@ export default function App() {
         scaleTarget: cabbyFixture.intake.scaleTarget,
         document: cabbyFixture.intake.description,
       })
-      setExtras({
-        narrative: cabbyFixture.narrative,
-        competitorAnalysis: cabbyFixture.competitorAnalysis,
-      })
+      setExtras({ competitorAnalysis: cabbyFixture.competitorAnalysis })
       setView('results')
     } catch {
       setView('input')
@@ -123,7 +120,7 @@ export default function App() {
 
   function handleReset() {
     reset()
-    setExtras({ narrative: null, competitorAnalysis: null })
+    setExtras({ competitorAnalysis: null })
     setView('input')
   }
 
@@ -238,7 +235,7 @@ export default function App() {
                   <ScoreCard scorecard={scorecard} />
                   <GapReport scorecard={scorecard} trlResult={trl} gaps={gaps} />
                   {extras.competitorAnalysis && <CompetitorAnalysis analysis={extras.competitorAnalysis} />}
-                  {extras.narrative && <NarrativeBlock narrative={extras.narrative} />}
+                  {assessment.narrative && <NarrativeBlock narrative={assessment.narrative} />}
 
                   <div className="flex items-center gap-3 pt-4 border-t border-[#1e293b]">
                     <Button variant="secondary" size="sm" onClick={() => {

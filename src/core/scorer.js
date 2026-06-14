@@ -22,7 +22,8 @@ import { extractSignals } from './signalExtractor.js'
 const BASELINE = 5.0
 const STRONG_WEIGHT = 1.3
 const POSITIVE_WEIGHT = 0.6
-const NEGATIVE_WEIGHT = 1.8
+const NEGATIVE_WEIGHT = 1.5
+const MAX_NEGATIVE_PENALTY = 4.5 // a single axis can't be wiped out by many related gaps
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n))
 const round1 = (n) => Math.round(n * 10) / 10
@@ -34,12 +35,14 @@ const round1 = (n) => Math.round(n * 10) / 10
  * @returns {Object} axis result
  */
 function scoreAxis(axis, signals) {
-  const raw =
-    BASELINE +
-    signals.strong * STRONG_WEIGHT +
-    signals.positive * POSITIVE_WEIGHT -
-    signals.negative * NEGATIVE_WEIGHT
+  const positiveContribution =
+    signals.strong * STRONG_WEIGHT + signals.positive * POSITIVE_WEIGHT
+  const negativeContribution = Math.min(
+    signals.negative * NEGATIVE_WEIGHT,
+    MAX_NEGATIVE_PENALTY
+  )
 
+  const raw = BASELINE + positiveContribution - negativeContribution
   const score = round1(clamp(raw, 1, 10))
 
   // Confidence: more total signals → more confident. Caps at 0.95.

@@ -49,6 +49,11 @@ function DimensionCard({ dimension, index }) {
             </div>
             <p className="text-xs text-[#4b5563] mt-1">
               {Math.round((dimension.confidence || 0) * 100)}% confidence
+              {(dimension.foundEvidence?.length > 0 || dimension.missingEvidence?.length > 0) && (
+                <span className="text-[#475569]">
+                  {' · '}{(dimension.foundEvidence?.length || 0) + (dimension.missingEvidence?.length || 0)} signals
+                </span>
+              )}
             </p>
           </div>
           <div className={`text-2xl font-bold ${colors.text} ml-4`}>
@@ -56,13 +61,46 @@ function DimensionCard({ dimension, index }) {
           </div>
         </div>
 
-        {/* Expandable reasoning */}
+        {/* Expandable reasoning + evidence */}
         <div
-          className={`expand-height ${expanded ? 'max-h-40 opacity-100 mt-3' : 'max-h-0 opacity-0'}`}
+          className={`expand-height ${expanded ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0'}`}
         >
-          <p className="text-xs text-[#94a3b8] leading-relaxed border-t border-[#1e293b] pt-3">
-            {dimension.reasoning}
-          </p>
+          <div className="border-t border-[#1e293b] pt-3 space-y-3">
+            <p className="text-xs text-[#94a3b8] leading-relaxed">{dimension.reasoning}</p>
+
+            {/* Evidence found — the credibility proof */}
+            {dimension.foundEvidence?.length > 0 && (
+              <div>
+                <p className="text-[10px] text-green-400/70 uppercase tracking-wider mb-1.5">Evidence found</p>
+                <div className="flex flex-wrap gap-1">
+                  {dimension.foundEvidence.slice(0, 6).map((e) => (
+                    <span key={e} className="px-1.5 py-0.5 text-[10px] rounded bg-green-500/10 text-green-400 border border-green-500/15">
+                      ✓ {e}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Evidence missing — what dragged the score down */}
+            {dimension.missingEvidence?.length > 0 && (
+              <div>
+                <p className="text-[10px] text-red-400/70 uppercase tracking-wider mb-1.5">Gaps stated</p>
+                <div className="flex flex-wrap gap-1">
+                  {dimension.missingEvidence.slice(0, 6).map((e) => (
+                    <span key={e} className="px-1.5 py-0.5 text-[10px] rounded bg-red-500/10 text-red-400 border border-red-500/15">
+                      ✗ {e}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Framework attribution */}
+            {dimension.framework && (
+              <p className="text-[10px] text-[#4b5563]">Assessed via: {dimension.framework}</p>
+            )}
+          </div>
         </div>
 
         {/* Expand indicator */}
