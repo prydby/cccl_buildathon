@@ -1,0 +1,138 @@
+{
+  "intake": {
+    "name": "Cabby",
+    "productType": "Marketplace / Aggregator",
+    "state": "External Pilot",
+    "scaleTarget": "100,000 users",
+    "description": "Cabby is an AI-native cab aggregation platform that compares real-time pricing, ETAs, surge conditions, and driver ratings across Uber, Ola, Namma Yatri, BluSmart, and local fleet operators — then books the optimal ride via a unified interface.\n\nArchitecture: AI Agent System with MCP\n- Price Prediction Agent: ML model (XGBoost + real-time features) predicts surge 15 min ahead with 87% accuracy\n- Route Optimization Agent: Multi-provider route scoring factoring price, ETA, driver rating, carbon footprint\n- Provider Orchestration Agent: MCP-based tool-use agent that handles booking across 5 provider APIs with failover\n- User Preference Agent: Learns user patterns (time-of-day, price sensitivity, provider preference)\n\nTech Stack:\n- Frontend: React Native (iOS + Android) + Next.js (web dashboard)\n- Backend: Node.js microservices (8 services) on Kubernetes (EKS)\n- Real-time: WebSocket feeds from provider APIs, Redis Streams for event processing\n- ML: TensorFlow Serving (surge prediction), feature store on Redis\n- Data: PostgreSQL (transactional), ClickHouse (analytics), S3 (event archive)\n- Infra: AWS EKS, CloudFront CDN, Route53, ALB\n- CI/CD: GitHub Actions, ArgoCD for K8s deployments\n\nCurrent State (Pilot):\n- 3 cities: Bangalore, Mumbai, Delhi NCR\n- 3,200 active users, 1,400 rides/day\n- 5 provider integrations live (Uber, Ola, Namma Yatri, BluSmart, Rapido)\n- Average user saves 22% vs single-provider booking\n- D7 retention: 45%, D30: 28%\n- NPS: 58\n- Team: 14 engineers, 2 ML engineers, 3 product\n\nKnown Gaps (self-identified):\n- No distributed tracing across the 8 microservices\n- Provider API rate limits hit during peak hours (6-9 PM)\n- Surge prediction model not retrained in 6 weeks\n- No load testing beyond 3x current (targeting 50x for national launch)\n- PII (location history) stored without encryption at rest\n- No chaos testing or failure injection\n- Mobile app crash rate: 2.1% (above target 0.5%)\n\nGit Repository: github.com/cabby-app/cabby-platform (private)\nBRD: Internal Notion doc (linked in repo README)",
+    "repoUrl": "https://github.com/cabby-app/cabby-platform",
+    "competitors": ["Uber", "Ola", "Namma Yatri", "BluSmart", "Rapido"]
+  },
+  "frameworkSelected": {
+    "id": "platform-scale-readiness",
+    "name": "Platform Scale Readiness (PSR)",
+    "reason": "Detected: consumer marketplace/aggregator with multi-provider integration, real-time data flows, AI-agent orchestration, and geographic expansion requirements. PSR combines SRE Production Readiness, DORA Delivery Metrics, AI Agent patterns, and Scale Architecture assessment.",
+    "sources": ["Google SRE PRR", "Amazon ORR", "DORA Four Key Metrics", "AWS Well-Architected", "ISO 25010", "ThoughtWorks Fitness Functions"]
+  },
+  "scores": {
+    "dimensions": [
+      {
+        "name": "System Architecture",
+        "score": 7.8,
+        "reasoning": "Well-structured microservices on Kubernetes with clear service boundaries. AI agent architecture (4 specialized agents with MCP orchestration) is sophisticated and modular. Redis Streams for event processing is a strong choice. However, inter-service communication patterns are not documented, and the ML serving layer (TensorFlow Serving) is tightly coupled to the prediction agent.",
+        "evidence": "Found: 8 microservices on EKS, 4 AI agents with MCP, Redis Streams, ClickHouse analytics. Strong: K8s-native, CDN, proper data tier separation.",
+        "gap": "Missing: service dependency map, API contract versioning strategy, ML model serving abstraction.",
+        "benchmark": "Top quartile aggregator platforms have documented service meshes, contract testing between services, and model-agnostic serving layers.",
+        "confidence": 0.85
+      },
+      {
+        "name": "Reliability & Resilience",
+        "score": 5.4,
+        "reasoning": "Critical weakness. Provider API rate limits hit during peak hours (self-identified). No chaos testing. No documented failure modes or graceful degradation strategy. When one provider API goes down, the entire comparison for that provider fails rather than showing cached/estimated data. Mobile crash rate 2.1% is 4x above target.",
+        "evidence": "Found: K8s health checks, basic retries. Gaps confirmed: rate limit issues at peak, no chaos testing, no failure injection, crash rate 2.1%.",
+        "gap": "No SLOs defined, no graceful degradation on provider failure, no circuit breakers between agents, no cached fallback for price data.",
+        "benchmark": "Production ride-hailing platforms maintain 99.95% uptime with provider-level circuit breakers, cached pricing fallback, and <0.5% crash rate.",
+        "confidence": 0.90
+      },
+      {
+        "name": "Delivery Velocity",
+        "score": 7.2,
+        "reasoning": "Strong CI/CD foundation with GitHub Actions and ArgoCD for K8s deployments. However, mobile releases are still through app store review (weekly cycle), and ML model updates are manual. Feature flags not mentioned — all changes are full deploys.",
+        "evidence": "Found: GitHub Actions CI/CD, ArgoCD K8s deploys, automated testing in pipeline. Team velocity: 14 engineers shipping actively.",
+        "gap": "Missing: feature flags, canary deployments, ML model deployment pipeline, mobile OTA capability.",
+        "benchmark": "DORA Elite: deploy multiple times/day, <1h lead time, <5% change failure rate. Feature flags for instant rollback.",
+        "confidence": 0.82
+      },
+      {
+        "name": "Observability & Monitoring",
+        "score": 4.8,
+        "reasoning": "Critical gap. Self-identified: no distributed tracing across 8 microservices. Cannot trace a ride request from user tap → agent orchestration → provider booking → confirmation. Cost per ride unknown. No ML model monitoring (surge prediction model stale for 6 weeks with no drift detection).",
+        "evidence": "Found: basic CloudWatch/K8s metrics. Confirmed gap: no distributed tracing, no business metrics, no ML monitoring.",
+        "gap": "No request-level tracing, no cost-per-ride dashboard, no model drift detection, no real-time alerting on degraded provider response.",
+        "benchmark": "Production platforms require: OpenTelemetry tracing, Grafana dashboards for business metrics, ML model monitoring with automated retraining triggers, SLO-based alerting.",
+        "confidence": 0.92
+      },
+      {
+        "name": "Security & Data Privacy",
+        "score": 5.6,
+        "reasoning": "Significant gap: PII (user location history) stored without encryption at rest — a compliance liability. Provider API keys management unclear. No mention of SOC2, GDPR compliance, or data retention policies. For a service handling real-time location data across millions of users, this is a blocking concern for national scale.",
+        "evidence": "Found: HTTPS in transit, OAuth2 for users. Confirmed gap: no encryption at rest for location data, no data retention policy.",
+        "gap": "No encryption at rest for PII, no secrets vault (API keys), no compliance certification, no data retention/deletion policy, no regular security audits.",
+        "benchmark": "Location-based services require: encryption at rest (AES-256), data retention <90 days, user data export/deletion (GDPR/DPDPA), annual pen testing, secrets vault (HashiCorp/AWS KMS).",
+        "confidence": 0.88
+      },
+      {
+        "name": "Scalability Profile",
+        "score": 5.9,
+        "reasoning": "Current: 1,400 rides/day across 3 cities. Target: 50 cities = ~23,000 rides/day (16x). K8s auto-scaling helps, but no load testing beyond 3x. Redis is likely single-cluster. ClickHouse handles analytics but transactional Postgres will struggle without read replicas or sharding at 50-city scale. Provider API rate limits already hitting — at 16x load, this becomes catastrophic.",
+        "evidence": "Found: EKS auto-scaling, Redis caching, ClickHouse for analytics. Gap confirmed: only tested to 3x, rate limit issues already present.",
+        "gap": "No validated load tests at target scale, no database scaling strategy for 16x, provider rate limit mitigation plan missing, no geographic service distribution.",
+        "benchmark": "Pre-national-launch requires: load testing at 20x, database read replicas or sharding, per-provider rate limit budgets with queueing, and multi-region deployment.",
+        "confidence": 0.87
+      },
+      {
+        "name": "Testing Maturity",
+        "score": 6.4,
+        "reasoning": "Automated testing in CI pipeline. However, no chaos testing (self-identified), no ML model evaluation pipeline, no provider API failure simulation. Edge cases like simultaneous surge + provider outage are undocumented and untested.",
+        "evidence": "Found: CI pipeline with automated tests, GitHub Actions. Missing: chaos testing, ML eval pipeline, provider failure simulation.",
+        "gap": "No chaos/failure injection testing, no ML model regression testing, no provider outage simulation, edge case documentation missing.",
+        "benchmark": "Production services should have: chaos testing (monthly), ML model eval on every retrain, provider failure simulation in staging, documented edge cases with test coverage.",
+        "confidence": 0.80
+      },
+      {
+        "name": "Product-Market Signal",
+        "score": 8.4,
+        "reasoning": "Strong validation. 3,200 MAU with 45% D7 retention (exceptional for utility app). NPS 58 is strong. 22% average savings is a clear, measurable value prop. 1,400 rides/day across 3 cities with organic growth. Users clearly want this and are getting value.",
+        "evidence": "Found: 3,200 MAU, 45% D7 retention, 28% D30, NPS 58, 22% savings, 1,400 rides/day. All strong PMF indicators.",
+        "gap": "Feedback loop is informal. No systematic capture of why users churn (the 72% who leave by D30). No A/B testing infrastructure.",
+        "benchmark": "D7 retention >35% and weekly usage >2x indicates strong PMF. NPS >50 is excellent. Ready to scale from demand perspective.",
+        "confidence": 0.93
+      }
+    ],
+    "overall": 6.44,
+    "timestamp": "2026-06-14T16:00:00Z"
+  },
+  "competitorAnalysis": {
+    "competitors": [
+      {
+        "name": "Uber",
+        "strengths": ["Global scale infrastructure", "ML-powered dynamic pricing", "Driver supply optimization", "Brand trust"],
+        "weaknesses": ["Single-provider (no aggregation)", "Surge pricing opaque", "No price comparison"],
+        "cabbyAdvantage": "Cabby shows real-time Uber price alongside alternatives — users see when Uber is overcharging"
+      },
+      {
+        "name": "Ola",
+        "strengths": ["India market dominance", "Multiple vehicle categories", "Ola Electric integration"],
+        "weaknesses": ["App reliability issues", "Single-provider lock-in", "Inconsistent pricing"],
+        "cabbyAdvantage": "Cabby aggregates Ola alongside others — users get Ola when it's optimal, not by default"
+      },
+      {
+        "name": "Namma Yatri",
+        "strengths": ["Zero commission (driver-friendly)", "Open-source BECKN protocol", "Community trust in Bangalore"],
+        "weaknesses": ["Limited geographic coverage", "Basic app UX", "No surge prediction"],
+        "cabbyAdvantage": "Cabby includes Namma as a provider option — gives it broader reach while Cabby gets its zero-commission advantage"
+      },
+      {
+        "name": "BluSmart",
+        "strengths": ["All-electric fleet", "Fixed pricing (no surge)", "Premium experience"],
+        "weaknesses": ["Limited availability", "Higher base price", "Only select cities"],
+        "cabbyAdvantage": "Cabby surfaces BluSmart when user prioritizes fixed pricing or sustainability — best of both worlds"
+      },
+      {
+        "name": "Rapido",
+        "strengths": ["Bike taxi (fastest in traffic)", "Lowest price point", "Auto-rickshaw coverage"],
+        "weaknesses": ["Safety perception for bike", "No AC option", "Limited to 2-wheelers + autos"],
+        "cabbyAdvantage": "Cabby includes Rapido for short trips — users see it as the fastest/cheapest option for < 5km"
+      }
+    ],
+    "cabbyUniquePosition": "Cabby is not competing WITH these providers — it's the meta-layer that makes ALL of them better for users. The value is in the comparison + AI prediction, not in operating a fleet.",
+    "competitiveEdge": [
+      "Multi-provider comparison (no single provider does this)",
+      "Surge prediction 15 min ahead (87% accuracy) — only aggregator with this",
+      "User preference learning — gets smarter with use",
+      "Provider-agnostic: survives any single provider going down or exiting market",
+      "Carbon footprint scoring — appeals to sustainability-conscious users"
+    ]
+  },
+  "narrative": "Cabby demonstrates exceptional product-market fit (8.4/10) — users are saving 22% on average with 45% D7 retention. The AI-agent architecture is sophisticated and well-designed (7.8/10), with specialized agents for price prediction, route optimization, and provider orchestration via MCP.\n\nHowever, the platform is NOT ready for national scale. Three critical areas need investment:\n\n1. **Observability (4.8)** — Cannot trace requests across 8 microservices. At 16x current scale, debugging will be impossible. The ML model has been stale for 6 weeks with no drift detection.\n\n2. **Reliability (5.4)** — Provider rate limits already hit at peak. No circuit breakers, no graceful degradation. A single provider outage cascades to all users. Crash rate is 4x above target.\n\n3. **Security (5.6)** — Location data stored unencrypted. No compliance certification. For a service handling millions of real-time location points, this is a regulatory and trust liability.\n\nScalability (5.9) and Testing (6.4) are warnings — addressable but need attention before 50-city launch.\n\n**Verdict: CONDITIONAL GO** — The demand is validated and the architecture is sound. Invest 8-10 weeks in observability, reliability, and security before committing to national expansion. The competitive position (meta-layer across all providers) is defensible and unique.\n\n**Competitive Position:** Cabby isn't competing with Uber or Ola — it makes them all accessible. The moat is the AI prediction layer (surge forecast, preference learning) and the multi-provider aggregation itself."
+}

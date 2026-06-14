@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import Card from './ui/Card.jsx'
+import Card from '../../shared/ui/Card.jsx'
 
 function useCountUp(target, duration = 1000) {
   const [value, setValue] = useState(0)

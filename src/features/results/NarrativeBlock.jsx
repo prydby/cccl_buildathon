@@ -1,5 +1,5 @@
 import React from 'react'
-import Card from './ui/Card.jsx'
+import Card from '../../shared/ui/Card.jsx'
 
 function SkeletonLines() {
   return (

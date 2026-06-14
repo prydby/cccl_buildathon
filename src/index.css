@@ -150,6 +150,55 @@
   animation: slide-in-right 0.3s ease-out forwards;
 }
 
+/* ─── Scale In (Chat panel) ──────────────────────────── */
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.9) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ─── Message In (chat messages) ─────────────────────── */
+
+@keyframes msg-in {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-msg-in {
+  animation: msg-in 0.2s ease-out forwards;
+}
+
+/* ─── Slow Bounce (chat button) ──────────────────────── */
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
 /* ─── Height Expand (for collapsible sections) ───────── */
 
 .expand-height {
