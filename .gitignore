@@ -8,3 +8,6 @@ build/
 .claude/settings.local.json
 node_modules/
 dist/
+
+# Local-only review artifacts (not for git)
+.local-reviews/

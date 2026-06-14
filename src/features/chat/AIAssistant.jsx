@@ -72,11 +72,11 @@ function findResponse(input, mode) {
     if (pattern.test(lower) && kb[key]) return kb[key]
   }
 
-  // Default
+  // Default — honest fallback that never pretends
   if (mode === 'product') {
-    return "I can help with questions about PilotIQ as a product:\n\n• What is PilotIQ and who is it for?\n• How does the assessment work?\n• What frameworks does it use?\n• How is data handled (security)?\n• What's the Cabby demo about?\n• How is it different from ChatGPT?\n\nAsk me anything!"
+    return "I don't have a specific answer to that one, so I won't guess. Here's what I can speak to with confidence:\n\n• What is PilotIQ and who is it for?\n• How does the assessment work?\n• What frameworks does it use?\n• How is data handled (security)?\n• What's the Cabby demo about?\n• How is it different from ChatGPT?\n\nAsk me any of these — or rephrase your question."
   }
-  return "I can answer technical questions:\n\n• System architecture & design patterns\n• Tech stack choices\n• How scoring/assessment works internally\n• LLM router implementation\n• Framework selection logic\n• Scalability & deployment\n• MCP integration\n• Cabby's agent architecture\n\nAsk away!"
+  return "I don't want to bluff on that one. Here's what I can answer precisely:\n\n• System architecture & design patterns\n• Tech stack choices\n• How scoring/assessment works internally\n• LLM router implementation\n• Framework selection logic\n• Scalability & deployment\n• MCP integration\n• Cabby's agent architecture\n\nAsk one of these, or rephrase."
 }
 
 // ─── Component ───────────────────────────────────────────────
@@ -133,7 +133,7 @@ export default function AIAssistant() {
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg group ${
           isOpen
             ? 'bg-[#1e293b] border border-[#334155] rotate-45 scale-90'
-            : 'bg-gradient-to-br from-cyan-400 to-cyan-600 hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] hover:scale-110 animate-bounce-slow'
+            : 'bg-gradient-to-br from-cyan-400 to-cyan-600 hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] hover:scale-105 animate-pulse-glow'
         }`}
       >
         {isOpen ? (

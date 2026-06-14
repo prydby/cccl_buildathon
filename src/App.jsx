@@ -10,6 +10,7 @@ import GapReport from './features/results/GapReport.jsx'
 import CompetitorAnalysis from './features/results/CompetitorAnalysis.jsx'
 import FrameworkPage from './features/about/FrameworkPage.jsx'
 import ArchitecturePage from './features/about/ArchitecturePage.jsx'
+import AboutProduct from './features/about/AboutProduct.jsx'
 import CabbyPage from './features/demo/CabbyPage.jsx'
 import AIAssistant from './features/chat/AIAssistant.jsx'
 import Button from './shared/ui/Button.jsx'
@@ -159,6 +160,7 @@ export default function App() {
           <NavButton active={page === 'assess'} onClick={() => setPage('assess')} icon="🔬">Readiness Check</NavButton>
 
           <p className="text-[10px] text-[#4b5563] uppercase tracking-wider px-3 py-2 font-semibold mt-3">Learn</p>
+          <NavButton active={page === 'guide'} onClick={() => setPage('guide')} icon="📘">About &amp; Guide</NavButton>
           <NavButton active={page === 'about'} onClick={() => setPage('about')} icon="📖">Framework</NavButton>
           <NavButton active={page === 'arch'} onClick={() => setPage('arch')} icon="⚙️">Architecture</NavButton>
         </nav>
@@ -185,22 +187,35 @@ export default function App() {
         <div className="max-w-4xl mx-auto p-6">
           {page === 'about' && <FrameworkPage />}
           {page === 'arch' && <ArchitecturePage />}
+          {page === 'guide' && <AboutProduct onTryDemo={handleDemo} onStart={() => { setPage('assess'); setView('input') }} />}
           {page === 'cabby' && <CabbyPage onAssess={handleDemo} />}
 
           {page === 'assess' && (
             <>
-              <header className="mb-6 flex items-center justify-between">
-                <div>
-                  <h1 className="text-lg font-semibold text-[#f1f5f9]">
-                    {view === 'input' && 'Production Readiness Assessment'}
-                    {view === 'loading' && 'Assessing...'}
-                    {view === 'results' && `Assessment — ${assessment?.intake?.name || ''}`}
-                  </h1>
-                  <p className="text-xs text-[#4b5563] mt-0.5">
-                    {view === 'input' && 'Feed your product document. Get an evidence-based readiness verdict.'}
-                    {view === 'loading' && 'Extracting signals across readiness axes'}
-                    {view === 'results' && 'Evidence-based verdict, gap analysis, and remediation roadmap'}
-                  </p>
+              <header className="mb-6 sticky top-0 z-20 -mx-6 px-6 py-3 bg-[#0a0e17]/85 backdrop-blur-md border-b border-[#1e293b] flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <h1 className="text-lg font-semibold text-[#f1f5f9]">
+                      {view === 'input' && 'Production Readiness Assessment'}
+                      {view === 'loading' && 'Assessing...'}
+                      {view === 'results' && `Assessment — ${assessment?.intake?.name || ''}`}
+                    </h1>
+                    <p className="text-xs text-[#4b5563] mt-0.5">
+                      {view === 'input' && 'Feed your product document. Get an evidence-based readiness verdict.'}
+                      {view === 'loading' && 'Extracting signals across readiness axes'}
+                      {view === 'results' && 'Evidence-based verdict, gap analysis, and remediation roadmap'}
+                    </p>
+                  </div>
+                  {/* Sticky verdict chip — stays visible on long scroll */}
+                  {view === 'results' && trl && (
+                    <span className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                      trl.verdict === 'GO' ? 'bg-green-500/10 text-green-400 border-green-500/30'
+                      : trl.verdict === 'CONDITIONAL' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                      : 'bg-red-500/10 text-red-400 border-red-500/30'
+                    }`}>
+                      {trl.verdict === 'GO' ? '✓' : trl.verdict === 'CONDITIONAL' ? '!' : '✗'} {trl.verdict.replace('_', '-')} · {scorecard.overall}/10 · TRL {trl.level}
+                    </span>
+                  )}
                 </div>
                 {view === 'results' && (
                   <Button variant="ghost" size="sm" onClick={handleReset}>+ New Assessment</Button>
@@ -210,6 +225,14 @@ export default function App() {
               {view === 'input' && (
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                   <div className="lg:col-span-3">
+                    {/* Differentiation trust strip */}
+                    <div className="flex flex-wrap items-center gap-2 mb-5">
+                      {['Deterministic', 'Evidence-cited', 'Not a ChatGPT wrapper', 'Runs locally'].map((t) => (
+                        <span key={t} className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] bg-[#111827] text-[#94a3b8] border border-[#1e293b]">
+                          <span className="text-cyan-400">◆</span> {t}
+                        </span>
+                      ))}
+                    </div>
                     <AssessmentForm onSubmit={handleSubmit} isLoading={isLoading} onReset={handleReset} />
                   </div>
                   <div className="lg:col-span-2 hidden lg:flex flex-col justify-center">

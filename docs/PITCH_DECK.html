@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PilotIQ — Pitch Deck</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --panel: #111827;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #06b6d4;
+    --accent-soft: rgba(6, 182, 212, 0.12);
+    --border: rgba(148, 163, 184, 0.14);
+    --go: #22c55e;
+    --cond: #f59e0b;
+    --nogo: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- Stage ---------- */
+  #stage {
+    position: relative;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6vh 8vw;
+    opacity: 0;
+  }
+
+  .slide.active {
+    display: flex;
+    animation: slideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(38px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 1.4rem;
+  }
+
+  h1 {
+    font-size: clamp(3.2rem, 8vw, 7rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+  }
+
+  h1 .iq { color: var(--accent); }
+
+  h2 {
+    font-size: clamp(1.9rem, 3.6vw, 3.1rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin-bottom: 2.4rem;
+  }
+
+  .tagline {
+    font-size: clamp(1.3rem, 2.5vw, 2.1rem);
+    font-weight: 500;
+    color: var(--text);
+    margin-top: 1.8rem;
+    max-width: 22ch;
+    line-height: 1.25;
+  }
+
+  .subline {
+    font-size: clamp(1rem, 1.6vw, 1.3rem);
+    color: var(--muted);
+    margin-top: 1.6rem;
+    max-width: 60ch;
+    line-height: 1.55;
+  }
+
+  .accent-text { color: var(--accent); font-weight: 600; }
+
+  /* ---------- Layout helpers ---------- */
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.6vw;
+    align-items: start;
+  }
+
+  .cols-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.8vw;
+    align-items: stretch;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem 1.9rem;
+  }
+
+  .panel .label {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .panel h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.9rem;
+  }
+
+  ul.clean { list-style: none; }
+
+  ul.clean li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.9rem;
+    color: var(--text);
+    font-size: clamp(0.95rem, 1.25vw, 1.12rem);
+    line-height: 1.45;
+  }
+
+  ul.clean li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  ul.clean li .m { color: var(--muted); }
+
+  /* ---------- Chips ---------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.4rem; }
+
+  .chip {
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--accent-soft);
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .chip.found { color: var(--go); border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.10); }
+  .chip.miss  { color: var(--nogo); border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.10); }
+
+  /* ---------- Feature grid ---------- */
+  .feat {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .feat .ico {
+    font-size: 1.5rem;
+    width: 2.6rem; height: 2.6rem;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    margin-bottom: 0.4rem;
+  }
+
+  .feat h4 { font-size: 1.08rem; font-weight: 700; }
+  .feat p { font-size: 0.95rem; color: var(--muted); line-height: 1.45; }
+
+  /* ---------- Verdict / metrics ---------- */
+  .verdict-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.4rem; }
+
+  .verdict {
+    border-radius: 14px;
+    padding: 1rem 1.3rem;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    min-width: 150px;
+  }
+  .verdict .v { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+  .verdict .k { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 0.3rem; }
+  .verdict.go .v { color: var(--go); }
+  .verdict.cond .v { color: var(--cond); }
+  .verdict.nogo .v { color: var(--nogo); }
+  .verdict.accent .v { color: var(--accent); }
+
+  .flow {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0.7rem;
+    margin-top: 0.6rem;
+  }
+  .flow .step {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+  .flow .arrow { color: var(--accent); font-size: 1.1rem; }
+
+  /* ---------- Footer / speaker notes ---------- */
+  #footer {
+    flex: 0 0 auto;
+    border-top: 1px solid var(--border);
+    background: rgba(17, 24, 39, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 0.7rem 2vw;
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+  }
+
+  #notes {
+    flex: 1 1 auto;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: var(--muted);
+    max-height: 22vh;
+    overflow-y: auto;
+  }
+  #notes.hidden { display: none; }
+  #notes b { color: var(--accent); font-weight: 700; }
+  #notes .ntitle {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.64rem;
+    color: var(--accent); font-weight: 700; margin-bottom: 0.3rem; display: block;
+  }
+
+  /* ---------- Controls ---------- */
+  .controls { display: flex; align-items: center; gap: 0.7rem; }
+
+  button.nav {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    width: 40px; height: 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  button.nav:hover { border-color: var(--accent); color: var(--accent); }
+  button.nav:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .counter {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--muted);
+    min-width: 48px;
+    text-align: center;
+  }
+  .counter b { color: var(--accent); }
+
+  .hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+  .hint kbd {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.7rem;
+    font-family: inherit;
+  }
+
+  .presenter {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .presenter a { color: var(--accent); text-decoration: none; }
+
+  /* progress bar */
+  #progress {
+    position: absolute;
+    top: 0; left: 0; height: 3px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+    z-index: 5;
+  }
+
+  @media (max-width: 760px) {
+    .cols, .cols-3 { grid-template-columns: 1fr; }
+    .hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="progress"></div>
+
+  <!-- ============ SLIDE 1 ============ -->
+  <section class="slide active" data-title="What PilotIQ Is">
+    <div class="eyebrow">Production Readiness, Decided</div>
+    <h1>Pilot<span class="iq">IQ</span></h1>
+    <p class="tagline">Is your product <span class="accent-text">actually ready</span> for production?</p>
+    <p class="subline">
+      PilotIQ reads your product document — a BRD, PRD, or system description — and returns an
+      evidence-based <span class="accent-text">GO / CONDITIONAL / NO-GO</span> verdict in about
+      60 seconds. Not a guess. Not flattery. A deterministic readiness assessment you can defend.
+    </p>
+    <div class="verdict-row">
+      <div class="verdict go"><div class="v">GO</div><div class="k">Ship it</div></div>
+      <div class="verdict cond"><div class="v">CONDITIONAL</div><div class="k">Fix first</div></div>
+      <div class="verdict nogo"><div class="v">NO-GO</div><div class="k">Not yet</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 2 ============ -->
+  <section class="slide" data-title="Problem & Solution">
+    <div class="eyebrow">The Gap</div>
+    <h2>"Ready for production?" is still answered by gut feel.</h2>
+    <div class="cols">
+      <div class="panel">
+        <div class="label">The Problem</div>
+        <ul class="clean">
+          <li>Readiness reviews are run <span class="m">by hand</span> by principal and staff engineers — slow, subjective, inconsistent.</li>
+          <li>AI agents and MCP products now <span class="m">ship faster than teams can assess them.</span></li>
+          <li>There's <span class="m">no shared standard</span> for what "production-ready" even means.</li>
+          <li>Ask ChatGPT and it <span class="m">flatters you</span> — it won't tell you no.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="label">The Solution</div>
+        <ul class="clean">
+          <li>A <span class="accent-text">deterministic engine</span> extracts evidence from your doc and scores 8 axes — same input, same verdict, every time.</li>
+          <li>Every score <span class="accent-text">cites the exact evidence</span> behind it: what's present, what's missing.</li>
+          <li>Synthesized from <span class="accent-text">12 industry frameworks</span> (Google SRE, Amazon ORR, DORA, NASA TRL, OWASP AI…).</li>
+          <li>It is <span class="accent-text">willing to say NO</span> — an honest verdict, not a pep talk.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 3 ============ -->
+  <section class="slide" data-title="How It Works & Features">
+    <div class="eyebrow">Deterministic Core · Evidence-Based · AI-Agentic</div>
+    <h2>How it works</h2>
+    <div class="flow">
+      <span class="step">Read document</span>
+      <span class="arrow">→</span>
+      <span class="step">Extract evidence signals</span>
+      <span class="arrow">→</span>
+      <span class="step">Score 8 axes</span>
+      <span class="arrow">→</span>
+      <span class="step">Verdict + TRL + roadmap</span>
+    </div>
+    <div class="cols-3" style="margin-top:2rem;">
+      <div class="feat">
+        <div class="ico">🧮</div>
+        <h4>Deterministic, not a wrapper</h4>
+        <p>Pure-logic core with negation awareness — "no distributed tracing" correctly counts as a gap. Zero dependencies, zero data leaving the browser.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">🔍</div>
+        <h4>Evidence chips + gap report</h4>
+        <p>Found/missing chips cite real evidence, benchmarked against industry standards, plus a remediation roadmap and auto-written exec narrative.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">🧭</div>
+        <h4>Adaptive framework</h4>
+        <p>Auto-selects by product type: AI Agent, SaaS/API, Consumer/Marketplace, or General. The 8-axis model is the NPS of production readiness.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">🤖</div>
+        <h4>MCP server</h4>
+        <p>Exposed as an <b>assess_readiness</b> tool — Claude and other agents can call PilotIQ directly as part of their workflow.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">🔌</div>
+        <h4>Provider-agnostic LLM</h4>
+        <p>Optional LLM layer (Mock / OpenAI / Anthropic) via strategy pattern. The deterministic core runs perfectly with it switched off.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">📤</div>
+        <h4>Radar + exports</h4>
+        <p>Per-axis radar chart, NASA TRL level 1–9, and one-click JSON / Markdown export for review docs and audits.</p>
+      </div>
+    </div>
+    <div class="chips" style="margin-top:1.6rem;">
+      <span class="chip found">✓ Hexagonal architecture</span>
+      <span class="chip found">✓ Auto-selected framework</span>
+      <span class="chip miss">✗ Unencrypted PII</span>
+      <span class="chip miss">✗ No distributed tracing</span>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 4 ============ -->
+  <section class="slide" data-title="Design · Market · Scale">
+    <div class="eyebrow">Built to Ship</div>
+    <h2>System design, market &amp; scale</h2>
+    <div class="cols-3">
+      <div class="panel">
+        <div class="label">System Design</div>
+        <ul class="clean">
+          <li>Clean <span class="m">layered / hexagonal</span> design: pure <b style="color:var(--accent)">core/</b> (no React), optional <b style="color:var(--accent)">llm/</b>, <b style="color:var(--accent)">features/</b> UI.</li>
+          <li>Config-driven frameworks — add a framework without touching engine code.</li>
+          <li><span class="m">13 passing Vitest tests.</span> React 18 · Vite 6 · Tailwind 4 · Recharts.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="label">Market &amp; GTM</div>
+        <ul class="clean">
+          <li>Buyer: <b style="color:var(--accent)">VP Engineering</b> / platform teams. User: principal &amp; staff engineers.</li>
+          <li>Why now (2026): agents ship faster than teams can vet — no shared standard exists.</li>
+          <li>PLG: free assessments → team workspaces → <span class="m">benchmark-data network effect.</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="label">Scale &amp; Production</div>
+        <ul class="clean">
+          <li>Stateless deterministic engine — <span class="m">scales infinitely as a static app.</span></li>
+          <li>~$0.02–0.05 per assessment in optional LLM mode; repository pattern swaps in-memory for Redis/Postgres.</li>
+          <li>PilotIQ assessed <b style="color:var(--accent)">itself</b> → CONDITIONAL, TRL 6. We dog-food it.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="verdict-row" style="margin-top:1.8rem;">
+      <div class="verdict accent"><div class="v">8</div><div class="k">Scored axes</div></div>
+      <div class="verdict accent"><div class="v">12</div><div class="k">Frameworks synthesized</div></div>
+      <div class="verdict accent"><div class="v">~60s</div><div class="k">To a verdict</div></div>
+      <div class="verdict cond"><div class="v">~6.5/10</div><div class="k">Cabby demo score</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 5 ============ -->
+  <section class="slide" data-title="Conclusion & Ask">
+    <div class="eyebrow">The Takeaway</div>
+    <h2>Any tech pilot — specialized for AI agents.</h2>
+    <div class="cols">
+      <div class="panel">
+        <div class="label">Why PilotIQ Wins</div>
+        <ul class="clean">
+          <li><span class="accent-text">Evidence-based</span> — every verdict is backed by cited signals.</li>
+          <li><span class="accent-text">Deterministic</span> — reproducible, defensible, auditable.</li>
+          <li><span class="accent-text">Adaptive</span> — the framework fits the product type.</li>
+          <li><span class="accent-text">Honest</span> — it's willing to say NO.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="label">The Ask</div>
+        <p class="subline" style="margin-top:0;">
+          Try it on your own product doc — local-first, nothing leaves your browser. Or wire the
+          <span class="accent-text">MCP server</span> into Claude and let your agents check their own readiness.
+        </p>
+        <p class="subline" style="margin-top:1.2rem;">
+          Help us make the 8-axis model <span class="accent-text">the shared standard</span> for production readiness.
+        </p>
+        <p class="subline" style="margin-top:1.2rem; color:var(--text);">
+          <b>Priya Dubey</b> &nbsp;·&nbsp;
+          <a href="https://github.com/prydby/cccl_buildathon" style="color:var(--accent); text-decoration:none;">github.com/prydby/cccl_buildathon</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<div id="footer">
+  <div class="controls">
+    <button class="nav" id="prevBtn" aria-label="Previous slide">‹</button>
+    <span class="counter"><b id="cur">1</b> / <span id="total">5</span></span>
+    <button class="nav" id="nextBtn" aria-label="Next slide">›</button>
+  </div>
+  <div id="notes"></div>
+  <div class="hint">
+    <kbd>←</kbd> <kbd>→</kbd> navigate &nbsp;·&nbsp; <kbd>N</kbd> toggle notes
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var notesEl = document.getElementById("notes");
+    var curEl = document.getElementById("cur");
+    var totalEl = document.getElementById("total");
+    var prevBtn = document.getElementById("prevBtn");
+    var nextBtn = document.getElementById("nextBtn");
+    var progress = document.getElementById("progress");
+    var idx = 0;
+
+    var speakerNotes = [
+      "<span class='ntitle'>Slide 1 — What it is</span>This is PilotIQ. It reads your product document and tells you, in about a minute, whether you're actually ready for production — a clear GO, CONDITIONAL, or NO-GO. Think of it as a co-pilot for shipping decisions, and yes, it plugs straight into Claude.",
+      "<span class='ntitle'>Slide 2 — Problem &amp; solution</span>Today, senior engineers run readiness reviews by hand, and it's slow and subjective. AI agents now ship faster than anyone can vet them, and there's no shared standard. Ask a chatbot and it just flatters you. PilotIQ is a deterministic engine that scores eight axes against twelve real industry frameworks — and it's honest enough to say no.",
+      "<span class='ntitle'>Slide 3 — How it works</span>It reads the doc, extracts evidence signals, scores eight axes, and gives you a verdict with a roadmap. It's not a wrapper — the core is pure logic, it even catches negations like 'no tracing' as a gap, and nothing leaves your browser. And because it's an MCP server, Claude can call PilotIQ as a tool to check its own work.",
+      "<span class='ntitle'>Slide 4 — Design, market &amp; scale</span>The architecture is clean and hexagonal with a pure core and thirteen passing tests. We sell to VP Engineering and platform teams, and the timing is now — agents are everywhere and there's no standard. It's stateless so it scales as a static app, costs pennies per run, and we dog-food it: PilotIQ assessed itself and got a CONDITIONAL.",
+      "<span class='ntitle'>Slide 5 — Conclusion &amp; ask</span>PilotIQ wins because it's evidence-based, deterministic, adaptive, and honest. Try it on your own doc — it's local-first — or wire the MCP server into Claude and let your agents assess themselves. Help us make this eight-axis model the shared standard for production readiness. I'm Priya Dubey — thank you."
+    ];
+
+    totalEl.textContent = slides.length;
+
+    function render() {
+      slides.forEach(function (s, i) {
+        s.classList.toggle("active", i === idx);
+      });
+      curEl.textContent = idx + 1;
+      notesEl.innerHTML = speakerNotes[idx];
+      prevBtn.disabled = idx === 0;
+      nextBtn.disabled = idx === slides.length - 1;
+      progress.style.width = ((idx + 1) / slides.length * 100) + "%";
+    }
+
+    function go(n) {
+      idx = Math.max(0, Math.min(slides.length - 1, n));
+      render();
+    }
+
+    nextBtn.addEventListener("click", function () { go(idx + 1); });
+    prevBtn.addEventListener("click", function () { go(idx - 1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === "PageDown") { go(idx + 1); }
+      else if (e.key === "ArrowLeft" || e.key === "PageUp") { go(idx - 1); }
+      else if (e.key === "Home") { go(0); }
+      else if (e.key === "End") { go(slides.length - 1); }
+      else if (e.key === "n" || e.key === "N") { notesEl.classList.toggle("hidden"); }
+    });
+
+    render();
+  })();
+</script>
+</body>
+</html>

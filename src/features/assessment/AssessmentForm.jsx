@@ -29,6 +29,21 @@ export default function AgentReadinessForm({ onSubmit, isLoading = false, onRese
   })
   const [errors, setErrors] = useState({})
 
+  function loadExample() {
+    setForm({
+      name: 'DocSearch Agent',
+      productType: 'AI Agent / MCP Tool',
+      state: 'Internal Pilot',
+      scaleTarget: '10,000 users',
+      description:
+        'MCP-based AI agent that searches and summarizes internal engineering docs using Claude with RAG over a vector store. Tech: Node.js, MCP server, Pinecone, Claude API. ' +
+        'We have OAuth2 auth, structured logging, and CI/CD via GitHub Actions with weekly releases. Unit and integration tests in CI at 60% coverage. ' +
+        'Known gaps: no distributed tracing, no eval suite for output quality, no cost dashboard (token spend unknown), no prompt versioning, PII in queries not masked, and no load testing beyond 2x. ' +
+        'Pilot with 40 engineers, 200 queries/day, task completion ~70%.',
+    })
+    setErrors({})
+  }
+
   function validate() {
     const errs = {}
     if (!form.name.trim()) errs.name = 'Required'
@@ -55,6 +70,19 @@ export default function AgentReadinessForm({ onSubmit, isLoading = false, onRese
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 animate-fade-in-up">
+      {/* Load example — instant magic moment */}
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] text-[#4b5563]">New here? Try a pre-filled example.</p>
+        <button
+          type="button"
+          onClick={loadExample}
+          disabled={isLoading}
+          className="text-xs px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors disabled:opacity-50"
+        >
+          ✨ Load example
+        </button>
+      </div>
+
       {/* Product identity */}
       <Input
         label="Product / System Name"
@@ -105,6 +133,7 @@ export default function AgentReadinessForm({ onSubmit, isLoading = false, onRese
           onChange={(e) => updateField('description', e.target.value)}
           placeholder={"Paste your BRD, PRD, or describe your system in detail:\n\n• What does it do?\n• Tech stack & architecture\n• Current scale (users, requests, data)\n• Known issues or gaps\n• Integration points\n• Team size & velocity\n\nThe more detail, the better the assessment. PilotIQ extracts evidence from what you provide."}
           rows={12}
+          maxLength={20000}
           className={`
             w-full px-4 py-3 rounded-xl text-sm font-mono leading-relaxed resize-none
             bg-[#0a0e17] border text-[#f1f5f9]
@@ -168,26 +197,26 @@ function getFrameworkName(productType) {
   const map = {
     'AI Agent / MCP Tool': 'Agent Readiness Model (ARM)',
     'SaaS Platform': 'SaaS Production Readiness (SPR)',
+    'API / Platform Service': 'SaaS Production Readiness (SPR)',
     'Consumer App': 'Platform Scale Readiness (PSR)',
-    'API / Platform Service': 'Service Maturity Model (SMM)',
-    'Data Pipeline / MLOps': 'DataOps + MLOps Maturity',
-    'Infrastructure / DevTool': 'Platform Engineering Maturity (PEM)',
     'Marketplace / Aggregator': 'Platform Scale Readiness (PSR)',
+    'Data Pipeline / MLOps': 'General Production Readiness (GPR)',
+    'Infrastructure / DevTool': 'General Production Readiness (GPR)',
     'Other': 'General Production Readiness (GPR)',
   }
-  return map[productType] || 'General Production Readiness'
+  return map[productType] || 'General Production Readiness (GPR)'
 }
 
 function getFrameworkSources(productType) {
   const map = {
-    'AI Agent / MCP Tool': 'Sources: Anthropic RSP, MLOps Maturity, OWASP AI, Google SRE PRR',
+    'AI Agent / MCP Tool': 'Sources: Anthropic RSP, Google MLOps Maturity, OWASP AI Top 10, Google SRE PRR, DORA',
     'SaaS Platform': 'Sources: AWS Well-Architected, DORA Metrics, ISO 25010, Google SRE PRR',
-    'Consumer App': 'Sources: Google SRE PRR, DORA Metrics, SPACE Framework, Accelerate',
-    'API / Platform Service': 'Sources: Google SRE PRR, DORA Metrics, ThoughtWorks Fitness Functions',
-    'Data Pipeline / MLOps': 'Sources: Google MLOps Maturity, DataOps Principles, DORA Metrics',
-    'Infrastructure / DevTool': 'Sources: Platform Engineering Maturity, SPACE Framework, DORA',
-    'Marketplace / Aggregator': 'Sources: Google SRE PRR, AWS Well-Architected, DORA, ISO 25010',
+    'API / Platform Service': 'Sources: AWS Well-Architected, DORA Metrics, ISO 25010, Google SRE PRR',
+    'Consumer App': 'Sources: Google SRE PRR, Amazon ORR, DORA, AWS Well-Architected, ISO 25010, ThoughtWorks Fitness Functions',
+    'Marketplace / Aggregator': 'Sources: Google SRE PRR, Amazon ORR, DORA, AWS Well-Architected, ISO 25010, ThoughtWorks Fitness Functions',
+    'Data Pipeline / MLOps': 'Sources: Google SRE PRR, DORA Metrics, AWS Well-Architected, NASA TRL',
+    'Infrastructure / DevTool': 'Sources: Google SRE PRR, DORA Metrics, AWS Well-Architected, NASA TRL',
     'Other': 'Sources: Google SRE PRR, DORA Metrics, AWS Well-Architected, NASA TRL',
   }
-  return map[productType] || ''
+  return map[productType] || 'Sources: Google SRE PRR, DORA Metrics, AWS Well-Architected, NASA TRL'
 }

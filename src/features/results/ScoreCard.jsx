@@ -21,9 +21,9 @@ function useCountUp(target, duration = 1000) {
 }
 
 function getScoreColor(score) {
-  if (score < 4) return { text: 'text-red-400', bg: 'bg-red-500', glow: 'glow-red' }
-  if (score < 7) return { text: 'text-amber-400', bg: 'bg-amber-500', glow: 'glow-amber' }
-  return { text: 'text-green-400', bg: 'bg-green-500', glow: 'glow-green' }
+  if (score < 4) return { text: 'text-red-400', bg: 'bg-red-500', glow: 'glow-red', icon: '✗', label: 'critical' }
+  if (score < 7) return { text: 'text-amber-400', bg: 'bg-amber-500', glow: 'glow-amber', icon: '!', label: 'warning' }
+  return { text: 'text-green-400', bg: 'bg-green-500', glow: 'glow-green', icon: '✓', label: 'ready' }
 }
 
 function DimensionCard({ dimension, index }) {
@@ -56,8 +56,11 @@ function DimensionCard({ dimension, index }) {
               )}
             </p>
           </div>
-          <div className={`text-2xl font-bold ${colors.text} ml-4`}>
-            {dimension.score !== null ? animatedScore.toFixed(1) : '—'}
+          <div className={`flex items-center gap-1.5 ml-4`}>
+            <span className={`text-xs ${colors.text}`} title={colors.label} aria-label={colors.label}>{colors.icon}</span>
+            <span className={`text-2xl font-bold ${colors.text}`}>
+              {dimension.score !== null ? animatedScore.toFixed(1) : '—'}
+            </span>
           </div>
         </div>
 
